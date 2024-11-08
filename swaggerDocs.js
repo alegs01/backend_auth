@@ -7,16 +7,23 @@ const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "API de autenticación",
+      title: "API de Productos",
       version: "1.0.0",
-      description: "Documentación de la API de autenticación",
     },
-    servers: [
+    security: [
       {
-        url: "http://localhost:3000/",
-        description: "Servidor local",
+        bearerAuth: [],
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
 
   apis: [

@@ -3,6 +3,7 @@ const cors = require("cors");
 const swaggerDocs = require("./swaggerDocs");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
+const connectDB = require("./config/db.js");
 
 require("dotenv").config();
 const port = process.env.PORT || 3000;
