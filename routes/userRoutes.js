@@ -10,9 +10,54 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   name: Usuarios
- *   description: Endpoints para la gestión de usuarios
+ * components:
+ *   schemas:
+ *     Usuario:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID único del usuario.
+ *         name:
+ *           type: string
+ *           description: Nombre del usuario.
+ *         lastname:
+ *           type: string
+ *           description: Apellido del usuario.
+ *         email:
+ *           type: string
+ *           description: Correo electrónico del usuario.
+ *         country:
+ *           type: string
+ *           description: País del usuario.
+ *         address:
+ *           type: string
+ *           description: Dirección del usuario.
+ *         zipcode:
+ *           type: number
+ *           description: Código postal del usuario.
+ *         cart:
+ *           type: string
+ *           description: ID del carrito de compras del usuario (referencia a Cart).
+ *         receipts:
+ *           type: array
+ *           items:
+ *             type: object
+ *           description: Historial de recibos de compras del usuario.
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *       example:
+ *         _id: 637bf21f31312991970fdba8
+ *         name: "Ejemplo"
+ *         lastname: "Apellido"
+ *         email: "ejemplo.com"
+ *         country: "Chile"
+ *         address: "Calle Falsa 123"
+ *         zipcode: 12345
+ *         cart: "637bf21f31312991970fdba9"
+ *         receipts: [{"receiptID": "1234", "amount": 29.99}]
  */
 
 /**
@@ -28,12 +73,20 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               nombre:
+ *               name:
  *                 type: string
- *               correo:
+ *               lastname:
  *                 type: string
- *               contraseña:
+ *               email:
  *                 type: string
+ *               password:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               zipcode:
+ *                 type: number
  *     responses:
  *       201:
  *         description: Usuario registrado exitosamente
@@ -55,9 +108,9 @@ router.post("/register", register);
  *           schema:
  *             type: object
  *             properties:
- *               correo:
+ *               email:
  *                 type: string
- *               contraseña:
+ *               password:
  *                 type: string
  *     responses:
  *       200:
@@ -87,15 +140,20 @@ router.post("/login", login);
  *           schema:
  *             type: object
  *             properties:
- *               nombre:
+ *               name:
  *                 type: string
- *                 description: Nuevo nombre del usuario
- *               correo:
+ *               lastname:
  *                 type: string
- *                 description: Nuevo correo del usuario
- *               contraseña:
+ *               email:
  *                 type: string
- *                 description: Nueva contraseña del usuario
+ *               password:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               zipcode:
+ *                 type: number
  *     responses:
  *       200:
  *         description: Usuario actualizado exitosamente
@@ -111,9 +169,9 @@ router.post("/login", login);
  *                   properties:
  *                     _id:
  *                       type: string
- *                     nombre:
+ *                     name:
  *                       type: string
- *                     correo:
+ *                     email:
  *                       type: string
  *       400:
  *         description: Datos inválidos proporcionados
@@ -126,7 +184,7 @@ router.put("/update/:id", authMiddleware, updateUser);
 
 /**
  * @swagger
- * /api/user/all:
+ * /api/user/:
  *   get:
  *     summary: Obtener todos los usuarios
  *     tags: [Usuarios]

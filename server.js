@@ -3,6 +3,7 @@ const cors = require("cors");
 const swaggerDocs = require("./swaggerDocs");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
+const checkoutRoutes = require("./routes/checkoutRoutes.js");
 const connectDB = require("./config/db.js");
 
 require("dotenv").config();
@@ -14,6 +15,15 @@ app.use(cors());
 app.use(express.json());
 connectDB();
 
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/checkout/create-order") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+app.use("/api/checkout", checkoutRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
 

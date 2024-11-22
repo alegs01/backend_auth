@@ -1,26 +1,58 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const Cart = require("../models/cartModel");
 
 exports.register = async (req, res) => {
-  const { nombre, correo, contraseña } = req.body;
   try {
-    const user = await User.create({ nombre, correo, contraseña });
-    res.status(201).json({
-      id: user._id,
-      nombre: user.nombre,
-      correo: user.correo,
+    const { name, lastname, country, address, zipcode, email, password } =
+      req.body;
+
+    // Verifica si el usuario ya existe
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // Encripta la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Crea el usuario
+    const newUser = new User({
+      name,
+      lastname,
+      country,
+      address,
+      zipcode,
+      email,
+      password: hashedPassword,
     });
+
+    // Guarda el usuario en la base de datos
+    await newUser.save();
+
+    // Crea un carrito asociado al usuario
+    const newCart = new Cart({ user: newUser._id });
+    await newCart.save();
+
+    // Asocia el carrito al usuario y guarda de nuevo
+    newUser.cart = newCart._id;
+    await newUser.save();
+
+    res
+      .status(201)
+      .json({ message: "User registered successfully", user: newUser });
   } catch (error) {
-    res.status(400).json({ message: "Error registering user", error });
+    res.status(500).json({ message: "Error registering user", error });
   }
 };
 
 exports.login = async (req, res) => {
-  const { correo, contraseña } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ correo });
-    if (!user || !(await bcrypt.compare(contraseña, user.contraseña))) {
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -34,16 +66,21 @@ exports.login = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { nombre, correo, contraseña } = req.body;
+  const { name, lastname, email, password, country, address, zipcode } =
+    req.body;
 
   try {
     const updateData = {};
-    if (nombre) updateData.nombre = nombre;
-    if (correo) updateData.correo = correo;
-    if (contraseña) {
+    if (name) updateData.name = name;
+    if (lastname) updateData.lastname = lastname;
+    if (email) updateData.email = email;
+    if (password) {
       const salt = await bcrypt.genSalt(10);
-      updateData.contraseña = await bcrypt.hash(contraseña, salt);
+      updateData.password = await bcrypt.hash(password, salt);
     }
+    if (country) updateData.country = country;
+    if (address) updateData.address = address;
+    if (zipcode !== undefined) updateData.zipcode = zipcode;
 
     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -51,14 +88,14 @@ exports.updateUser = async (req, res) => {
     });
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res
       .status(200)
-      .json({ message: "Usuario actualizado con éxito", user: updatedUser });
+      .json({ message: "User updated successfully", user: updatedUser });
   } catch (error) {
-    res.status(400).json({ message: "Error al actualizar el usuario", error });
+    res.status(400).json({ message: "Error updating user", error });
   }
 };
 

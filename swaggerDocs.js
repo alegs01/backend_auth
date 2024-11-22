@@ -27,8 +27,9 @@ const swaggerSpec = swaggerJSDoc({
   },
 
   apis: [
-    path.join(__dirname, "./routes/productRoutes.js"),
     path.join(__dirname, "./routes/userRoutes.js"),
+    path.join(__dirname, "./routes/productRoutes.js"),
+    path.join(__dirname, "./routes/checkoutRoutes.js"),
   ],
 });
 

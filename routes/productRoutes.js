@@ -11,9 +11,47 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   name: Productos
- *   description: Endpoints para la gestión de productos
+ * components:
+ *   schemas:
+ *     Producto:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID único del producto.
+ *         nombre:
+ *           type: string
+ *           description: Nombre del producto.
+ *         descripcion:
+ *           type: string
+ *           description: Descripción del producto.
+ *         categoria:
+ *           type: string
+ *           description: Categoría del producto.
+ *         precioBase:
+ *           type: number
+ *           description: Precio base del producto.
+ *         slug:
+ *           type: string
+ *           description: Slug del producto.
+ *         img:
+ *           type: string
+ *           description: URL de la imagen del producto.
+ *       required:
+ *         - nombre
+ *         - descripcion
+ *         - categoria
+ *         - precioBase
+ *         - slug
+ *         - img
+ *       example:
+ *         _id: 637bf21f31312991970fdba8
+ *         nombre: "Producto Ejemplo"
+ *         descripcion: "Este es un producto de prueba."
+ *         categoria: "Alimentos"
+ *         precioBase: 9000
+ *         slug: "carne-molida"
+ *         img: "http://example.com/imagen.jpg"
  */
 
 /**
@@ -35,8 +73,14 @@ const router = express.Router();
  *                 type: string
  *               descripcion:
  *                 type: string
- *               precio:
+ *               categoria:
+ *                 type: string
+ *               precioBase:
  *                 type: number
+ *               slug:
+ *                 type: string
+ *               img:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Producto creado exitosamente
@@ -69,8 +113,14 @@ router.post("/create", authMiddleware, createProduct);
  *                 type: string
  *               descripcion:
  *                 type: string
- *               precio:
+ *               categoria:
+ *                 type: string
+ *               precioBase:
  *                 type: number
+ *               slug:
+ *                 type: string
+ *               img:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Producto actualizado con éxito
