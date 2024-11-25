@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const cors = require("cors");
 const swaggerDocs = require("./swaggerDocs");
@@ -15,24 +16,20 @@ app.use(cors());
 app.use(express.json());
 connectDB();
 
-app.use((req, res, next) => {
-  if (req.originalUrl === "/api/checkout/create-order") {
-    next();
-  } else {
-    express.json()(req, res, next);
-  }
-});
-
+// Rutas de la API
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
 
+// Ruta raíz
 app.get("/", (req, res) => {
   res.send(
     "El servidor está en funcionamiento. Puedes consultar la documentación de la API en /api-docs"
   );
 });
 
+// Swagger Docs
 swaggerDocs(app);
 
+// Iniciar servidor
 app.listen(port, () => console.log(`Servidor corriendo en el puerto ${port}`));

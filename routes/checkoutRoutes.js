@@ -148,7 +148,7 @@ router.post(
  *                 cart:
  *                   $ref: '#/components/schemas/Cart'
  */
-router.post("/create-cart", checkoutController.createCart);
+router.post("/create-cart", authMiddleware, checkoutController.createCart);
 
 /**
  * @swagger

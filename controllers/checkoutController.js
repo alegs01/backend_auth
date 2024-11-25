@@ -1,6 +1,11 @@
 // Importa los modelos de Cart y User
 const Cart = require("../models/cartModel");
 const User = require("../models/userModel");
+const mercadopago = require("mercadopago");
+
+const client = new mercadopago.MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN,
+});
 
 // Función para crear una sesión de checkout de prueba
 exports.createCheckoutSession = async (req, res) => {
@@ -31,55 +36,117 @@ exports.createCheckoutSession = async (req, res) => {
   });
 };
 
-// Función para crear una orden
 exports.createOrder = async (req, res) => {
-  // Obtén un identificador de evento de prueba
-  const eventID = "test_event_id";
-  const email = req.body.email || "test@example.com";
+  const { email } = req.body;
 
-  // Simula una orden exitosa
-  const receiptURL = `https://fake-receipt.com/${eventID}`;
-  const receiptID = eventID;
-  const amount = 1000; // Valor simulado
-  const date_created = Date.now();
+  if (!email) {
+    return res.status(400).json({ message: "Correo es obligatorio" });
+  }
 
-  // Actualiza el usuario con los datos del recibo simulado
-  await User.findOneAndUpdate(
-    { email },
-    {
-      $push: {
-        receipts: {
-          receiptURL,
-          receiptID,
-          date_created,
-          amount,
-        },
+  try {
+    const foundUser = await User.findOne({ email }).populate("cart");
+
+    if (!foundUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (!foundUser.cart || foundUser.cart.products.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "El carrito está vacío o no está asociado" });
+    }
+
+    const { products } = foundUser.cart;
+
+    const preference = {
+      items: products.map((product) => ({
+        title: product.name,
+        quantity: product.quantity,
+        unit_price: product.price,
+        currency_id: "USD",
+      })),
+      payer: {
+        email,
       },
-    },
-    { new: true }
-  );
+      back_urls: {
+        success: "http://www.tu_dominio.com/success",
+        failure: "http://www.tu_dominio.com/failure",
+        pending: "http://www.tu_dominio.com/pending",
+      },
+      auto_return: "approved",
+    };
 
-  // Respuesta simulada
-  res.json({
-    message: "Orden simulada creada exitosamente.",
-    receipt: {
-      receiptURL,
-      receiptID,
-      date_created,
-      amount,
-    },
-  });
+    const response = await client.preferences.create(preference);
+
+    res.status(200).json({
+      init_point: response.body.init_point,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear la orden", error });
+  }
 };
 
 // Función para crear un carrito
 exports.createCart = async (req, res) => {
-  // Crea un carrito con los datos de la solicitud
-  const newCart = await Cart.create(req.body);
+  const { products } = req.body;
 
-  // Envía el nuevo carrito en la respuesta
-  res.json({
-    cart: newCart,
-  });
+  // Obtener el ID del usuario desde `req.user`
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ message: "No se encontró el usuario autenticado" });
+  }
+
+  try {
+    // Crea un nuevo carrito
+    const newCart = await Cart.create({ products });
+
+    // Encuentra al usuario y vincula el carrito
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { cart: newCart._id },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(201).json({
+      message: "Carrito creado y asociado al usuario",
+      cart: newCart,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear el carrito", error });
+  }
+};
+
+exports.getUserCart = async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const foundUser = await User.findOne({ email }).populate("cart");
+
+    if (!foundUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    if (!foundUser.cart) {
+      return res
+        .status(404)
+        .json({ message: "El usuario no tiene un carrito asociado" });
+    }
+
+    res.status(200).json({
+      cart: foundUser.cart,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener el carrito del usuario", error });
+  }
 };
 
 // Función para obtener un carrito
