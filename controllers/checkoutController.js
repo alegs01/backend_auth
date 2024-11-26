@@ -4,8 +4,11 @@ const User = require("../models/userModel");
 const mercadopago = require("mercadopago");
 
 const client = new mercadopago.MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN,
+  accessToken:
+    "APP_USR-1103948530982831-112217-bef9ec8c4c9ae00a98e3fd97a3c92df7-221707668",
 });
+
+const preferences = new mercadopago.Preference(client);
 
 // Función para crear una sesión de checkout de prueba
 exports.createCheckoutSession = async (req, res) => {
@@ -76,7 +79,7 @@ exports.createOrder = async (req, res) => {
       auto_return: "approved",
     };
 
-    const response = await client.preferences.create(preference);
+    const response = await preferences.create(preference);
 
     res.status(200).json({
       init_point: response.body.init_point,
