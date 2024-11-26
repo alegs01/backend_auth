@@ -16,7 +16,11 @@ Este es un proyecto de backend para autenticación de usuarios con funcionalidad
 - **Autenticación de Usuario**: Registro, inicio de sesión y protección de rutas usando JWT.
 - **Gestión de Carrito**: Los usuarios pueden agregar productos al carrito y proceder a la compra.
 - **Integración con Mercado Pago**: Creación de órdenes de pago a través de la API de Mercado Pago.
-  
+
+## Deploy en Vercel
+
+`https://backend-auth-3f5f.onrender.com/api-docs/`
+
 ## Endpoints
 
 ### Usuario
