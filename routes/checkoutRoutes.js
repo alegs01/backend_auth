@@ -1,7 +1,14 @@
-const express = require("express");
+import express from "express";
+import {
+  createCheckoutSession,
+  createOrder,
+  createCart,
+  getCart,
+  editCart,
+} from "../controllers/checkoutController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const checkoutController = require("../controllers/checkoutController");
-const authMiddleware = require("../middleware/authMiddleware");
 
 /**
  * @swagger
@@ -35,18 +42,18 @@ const authMiddleware = require("../middleware/authMiddleware");
  *        products:
  *          - quantity: 1
  *            priceID: "1"
- *            name: "Producto A"
- *            priceDescription: "USD"
- *            price: 1.99
+ *            name: "Colacao"
+ *            priceDescription: "CLP"
+ *            price: 1999
  *            img: "url_imagen"
- *            slug: "producto-a"
+ *            slug: "colacao"
  */
 
 /**
  * @swagger
  * /api/checkout/create-checkout-session:
  *   get:
- *     summary: Crear sesión de pago simulada
+ *     summary: Crear sesión de pago simulada SIN MERCADOPAGO
  *     description: Crea una sesión de pago para simular el proceso de checkout.
  *     tags: [Checkout]
  *     security:
@@ -73,19 +80,17 @@ const authMiddleware = require("../middleware/authMiddleware");
  *                       price:
  *                         type: number
  */
-router.get(
-  "/create-checkout-session",
-  authMiddleware,
-  checkoutController.createCheckoutSession
-);
+router.get("/create-checkout-session", authMiddleware, createCheckoutSession);
 
 /**
  * @swagger
  * /api/checkout/create-order:
  *   post:
- *     summary: Crear una orden simulada
- *     description: Procesa una orden simulada y actualiza la base de datos.
+ *     summary: Crear una orden de pago con MERCADOPAGO
+ *     description: Crea una orden de pago utilizando Mercado Pago y retorna el enlace de pago.
  *     tags: [Checkout]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -95,9 +100,35 @@ router.get(
  *             properties:
  *               email:
  *                 type: string
+ *                 description: Correo electrónico del comprador.
+ *               items:
+ *                 type: array
+ *                 description: Lista de productos para la orden.
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     title:
+ *                       type: string
+ *                       description: Nombre del producto.
+ *                     quantity:
+ *                       type: integer
+ *                       description: Cantidad del producto.
+ *                     unit_price:
+ *                       type: number
+ *                       description: Precio unitario del producto.
  *     responses:
  *       200:
- *         description: Orden creada exitosamente.
+ *         description: Orden de pago creada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 init_point:
+ *                   type: string
+ *                   description: URL para iniciar el pago en Mercado Pago.
+ *       400:
+ *         description: Datos insuficientes o solicitud inválida.
  *         content:
  *           application/json:
  *             schema:
@@ -105,24 +136,32 @@ router.get(
  *               properties:
  *                 message:
  *                   type: string
- *                 receipt:
+ *                   description: Mensaje de error relacionado con los datos enviados.
+ *       500:
+ *         description: Error interno del servidor, formato de JSON incorrecto o token inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error general.
+ *                 error:
  *                   type: object
+ *                   description: Detalle del error.
  *                   properties:
- *                     receiptURL:
+ *                     message:
  *                       type: string
- *                     receiptID:
+ *                       description: Mensaje del error específico (ej. "invalid_token" o "Bad JSON format").
+ *                     status:
+ *                       type: integer
+ *                       description: Código de estado HTTP relacionado con el error.
+ *                     details:
  *                       type: string
- *                     date_created:
- *                       type: string
- *                       format: date-time
- *                     amount:
- *                       type: number
+ *                       description: Información adicional sobre el error.
  */
-router.post(
-  "/create-order",
-  express.raw({ type: "application/json" }),
-  checkoutController.createOrder
-);
+router.post("/create-order", authMiddleware, createOrder);
 
 /**
  * @swagger
@@ -148,7 +187,7 @@ router.post(
  *                 cart:
  *                   $ref: '#/components/schemas/Cart'
  */
-router.post("/create-cart", authMiddleware, checkoutController.createCart);
+router.post("/create-cart", authMiddleware, createCart);
 
 /**
  * @swagger
@@ -167,7 +206,7 @@ router.post("/create-cart", authMiddleware, checkoutController.createCart);
  *             schema:
  *               $ref: '#/components/schemas/Cart'
  */
-router.get("/get-cart", authMiddleware, checkoutController.getCart);
+router.get("/get-cart", authMiddleware, getCart);
 
 /**
  * @swagger
@@ -197,6 +236,6 @@ router.get("/get-cart", authMiddleware, checkoutController.getCart);
  *                 updatedCart:
  *                   $ref: '#/components/schemas/Cart'
  */
-router.put("/edit-cart", authMiddleware, checkoutController.editCart);
+router.put("/edit-cart", authMiddleware, editCart);
 
-module.exports = router;
+export default router;

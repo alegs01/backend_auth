@@ -1,6 +1,11 @@
-const swaggerJSDoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-const path = require("path");
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Obtener la ruta del directorio actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuración de Swagger
 const swaggerSpec = swaggerJSDoc({
@@ -37,4 +42,4 @@ const swaggerDocs = (app) => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
 
-module.exports = swaggerDocs;
+export default swaggerDocs;

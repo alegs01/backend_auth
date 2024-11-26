@@ -1,6 +1,6 @@
-const Product = require("../models/productModel");
+import { Product } from "../models/productModel.js";
 
-exports.createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const { nombre, descripcion, categoria, precioBase, img, slug, moneda } =
       req.body;
@@ -25,7 +25,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-exports.getAllProducts = async (req, res) => {
+export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("usuarioId", "nombre email");
 
@@ -41,7 +41,7 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-exports.getProduct = async (req, res) => {
+export const getProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -66,7 +66,7 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-exports.updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
   const { id } = req.params;
   const { nombre, descripcion, categoria, precioBase, img, slug, moneda } =
     req.body;
@@ -103,7 +103,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-exports.deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 

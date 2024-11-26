@@ -1,11 +1,13 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   register,
   login,
   updateUser,
   getAllUsers,
-} = require("../controllers/userController");
-const authMiddleware = require("../middleware/authMiddleware");
+} from "../controllers/userController.js";
+
+import { authMiddleware } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
 /**
@@ -157,22 +159,6 @@ router.post("/login", login);
  *     responses:
  *       200:
  *         description: Usuario actualizado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 usuario:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                     name:
- *                       type: string
- *                     email:
- *                       type: string
  *       400:
  *         description: Datos inválidos proporcionados
  *       404:
@@ -208,12 +194,12 @@ router.put("/update/:id", authMiddleware, updateUser);
  *                       _id:
  *                         type: string
  *                         description: ID del usuario
- *                       nombre:
+ *                       name:
  *                         type: string
  *                         description: Nombre del usuario
- *                       correo:
+ *                       email:
  *                         type: string
- *                         description: Correo del usuario
+ *                         description: Correo electrónico del usuario
  *       401:
  *         description: Acceso no autorizado
  *       500:
@@ -239,4 +225,4 @@ router.get("/verifytoken", authMiddleware, (req, res) => {
   res.json({ message: "Token is valid" });
 });
 
-module.exports = router;
+export default router;

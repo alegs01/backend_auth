@@ -1,13 +1,14 @@
-// server.js
-const express = require("express");
-const cors = require("cors");
-const swaggerDocs = require("./swaggerDocs");
-const userRoutes = require("./routes/userRoutes");
-const productRoutes = require("./routes/productRoutes");
-const checkoutRoutes = require("./routes/checkoutRoutes.js");
-const connectDB = require("./config/db.js");
+import express from "express";
+import cors from "cors";
+import swaggerDocs from "./swaggerDocs.js";
+import userRoutes from "./routes/userRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import checkoutRoutes from "./routes/checkoutRoutes.js";
+import connectDB from "./config/db.js";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
+
 const port = process.env.PORT || 3001;
 
 const app = express();

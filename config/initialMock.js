@@ -1,7 +1,8 @@
-const mongoose = require("mongoose");
-require("dotenv").config({ path: "./../.env" });
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import Product from "../models/productModel.js";
 
-const Product = require("../models/productModel");
+dotenv.config({ path: "./../.env" });
 
 const products = [
   {

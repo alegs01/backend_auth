@@ -1,9 +1,9 @@
-const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const Cart = require("../models/cartModel");
+import { User } from "../models/userModel.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { Cart } from "../models/cartModel.js";
 
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { name, lastname, country, address, zipcode, email, password } =
       req.body;
@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -64,7 +64,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, lastname, email, password, country, address, zipcode } =
     req.body;
@@ -99,7 +99,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json({
