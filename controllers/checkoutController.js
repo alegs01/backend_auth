@@ -66,7 +66,6 @@ exports.createOrder = async (req, res) => {
         title: product.name,
         quantity: product.quantity,
         unit_price: product.price,
-        currency_id: "USD",
       })),
       payer: {
         email,
